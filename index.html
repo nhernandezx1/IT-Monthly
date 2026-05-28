@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV • IT Central • Arroyo Vista</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+
+    :root {
+      --bg: #05070a;
+      --panel: #0a1118;
+      --glass: rgba(10, 17, 24, 0.82);
+      --text: #e8f0f7;
+      --muted: #8fa4b8;
+      --accent: #22c55e;
+      --accent-2: #facc15;
+      --line: rgba(148, 163, 184, 0.15);
+      --theme-name: "Cyberpunk";
+    }
+
+    * { box-sizing: border-box; }
+    
+    html, body {
+      background: #05070a;
+      color: var(--text);
+      font-family: 'Inter', system_ui, sans-serif;
+    }
+    
+    .font-display {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+
+    .section-header {
+      font-size: clamp(1.85rem, 5vw, 3.1rem);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+    }
+
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .holo {
+      position: relative;
+      overflow: hidden;
+    }
+    .holo::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(250, 204, 21, 0.06) 18%, transparent 35%);
+      transform: translateX(-120%);
+      animation: holo-shimmer 6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes holo-shimmer {
+      to { transform: translateX(280%); }
+    }
+
+    .blog-card, .team-card {
+      transition: transform 0.4s cubic-bezier(0.23, 1.0, 0.32, 1), 
+                  box-shadow 0.4s cubic-bezier(0.23, 1.0, 0.32, 1),
+                  border-color 0.2s ease;
+    }
+    .blog-card:hover, .team-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .nav-link { position: relative; padding-bottom: 2px; }
+    .nav-link:after {
+      content: '';
+      position: absolute; bottom: -1px; left: 0; width: 0; height: 1px;
+      background: linear-gradient(to right, var(--accent), var(--accent-2));
+      transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .nav-link:hover:after { width: 100%; }
+
+    .stat-number { font-variant-numeric: tabular-nums; }
+
+    .premium-text {
+      background: linear-gradient(90deg, #e8f0f7 0%, #a3c4e0 50%, #e8f0f7 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-size: 200% 100%; animation: textShimmer 8s linear infinite;
+    }
+
+    .magnetic { transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1); }
+
+    #background-canvas {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: 0.65;
+    }
+
+    .theme-transition * {
+      transition: background-color 0.6s ease, border-color 0.6s ease, color 0.6s ease !important;
+    }
+
+    .post-tag {
+      font-size: 0.7rem; letter-spacing: .08em; font-weight: 600;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+  <!-- FULL-PAGE DYNAMIC BACKGROUND CANVAS -->
+  <canvas id="background-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-[#05070a]/95 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <div onclick="logoClickEasterEgg()" class="flex items-center gap-x-2.5 cursor-pointer">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] flex items-center justify-center">
+            <span class="text-[#05070a] font-bold text-xl tracking-tighter">AV</span>
+          </div>
+          <div>
+            <div class="font-semibold tracking-[-0.02em] text-lg">IT Central</div>
+            <div class="text-[10px] text-[var(--accent)]/70 -mt-1 font-medium">ARROYO VISTA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-x-8 text-sm">
+        <a href="#constellation" class="nav-link text-sm font-medium text-white/80 hover:text-white transition-colors">Constellation</a>
+        <a href="#knowledge" class="nav-link text-sm font-medium text-white/80 hover:text-white transition-colors">Knowledge</a>
+        <a href="#team" class="nav-link text-sm font-medium text-white/80 hover:text-white transition-colors">The Collective</a>
+        <a href="#mission-control" class="nav-link text-sm font-medium text-white/80 hover:text-white transition-colors">Mission Control</a>
+      </div>
+
+      <div class="flex items-center gap-x-3">
+        <button onclick="showThemePicker()" 
+                class="flex items-center gap-x-2 px-4 h-9 rounded-2xl border border-white/15 hover:bg-white/5 text-sm transition-all">
+          <i class="fa-solid fa-palette"></i>
+          <span id="current-theme-name" class="font-medium text-xs tracking-wider">CYBERPUNK</span>
+        </button>
+        <button onclick="showContactModal()"
+          class="px-5 py-2 text-sm font-semibold rounded-2xl border border-white/15 hover:bg-white/5 transition-all active:scale-[0.985]">
+          Contact IT
+        </button>
+        <button onclick="enterMissionControl()"
+          class="px-5 py-2 text-sm font-semibold bg-white text-[#05070a] rounded-2xl flex items-center gap-x-2 hover:bg-amber-300 transition-all active:scale-[0.985]">
+          <i class="fa-solid fa-rocket"></i>
+          <span class="font-semibold">Mission Control</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="relative min-h-[100dvh] flex items-center pt-16 border-b border-white/10" style="z-index: 1;">
+    <canvas id="hero-particles" class="absolute inset-0 pointer-events-none z-10 opacity-60"></canvas>
+    
+    <div class="max-w-5xl mx-auto px-8 relative z-20">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-x-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs tracking-[2px] font-semibold mb-6">
+          <div class="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-pulse"></div>
+          IT DEPARTMENT • FAMILY HEALTH CENTER
+        </div>
+
+        <h1 id="hero-headline" class="font-display section-header leading-none mb-6">
+          The quiet force<br>keeping everything<br>running.
+        </h1>
+        
+        <p id="hero-subhead" class="max-w-lg text-lg text-white/70">
+          This is the central nervous system of Arroyo Vista's technology. 
+          Documentation, experiments, and hard-won knowledge from the team that makes the impossible look easy.
+        </p>
+
+        <div class="flex items-center gap-x-4 mt-10">
+          <button onclick="document.getElementById('constellation').scrollIntoView({ behavior: 'smooth' })" 
+                  class="magnetic group px-8 h-12 rounded-2xl bg-[var(--accent)] hover:brightness-110 active:bg-white text-[#05070a] font-semibold flex items-center gap-x-3 transition-all text-base shadow-lg">
+            <span>Explore the Constellation</span>
+            <i class="fa-solid fa-arrow-right group-active:translate-x-0.5 transition"></i>
+          </button>
+          
+          <button onclick="document.getElementById('knowledge').scrollIntoView({ behavior: 'smooth' })" 
+                  class="magnetic px-7 h-12 rounded-2xl border border-white/15 hover:bg-white/5 font-medium flex items-center gap-x-2 text-sm transition-all">
+            <span>Browse Knowledge Base</span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-x-6 text-xs uppercase tracking-widest mt-9 text-white/50">
+          <div id="hero-stat-articles">42 ARTICLES</div>
+          <div class="w-px h-3 bg-white/20"></div>
+          <div>UPDATED TODAY</div>
+          <div class="w-px h-3 bg-white/20"></div>
+          <div id="hero-stat-team">8 HEROES ONLINE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-[10px] tracking-[3px] text-white/40">
+      <div>SCROLL TO BEGIN</div>
+      <i class="fa-solid fa-chevron-down mt-1.5 animate-bounce"></i>
+    </div>
+  </div>
+
+  <!-- STATS BAR (LIVE & EDITABLE) -->
+  <div class="border-b border-white/10 bg-black/40 relative" style="z-index: 1;">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-px bg-white/10">
+      <div onclick="editStat('tickets')" class="px-8 py-6 bg-[#05070a] cursor-pointer hover:bg-white/5 transition-colors group">
+        <div class="text-[var(--accent)] text-xs tracking-widest mb-1 font-medium flex items-center justify-between">
+          THIS MONTH <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-60"></i>
+        </div>
+        <div class="flex items-baseline gap-x-1">
+          <div id="stat-tickets" class="stat-number font-display text-5xl font-semibold tabular-nums">1247</div>
+        </div>
+        <div class="text-xs text-white/50 mt-px">tickets resolved</div>
+      </div>
+      <div onclick="editStat('uptime')" class="px-8 py-6 bg-[#05070a] cursor-pointer hover:bg-white/5 transition-colors group">
+        <div class="text-[var(--accent)] text-xs tracking-widest mb-1 font-medium flex items-center justify-between">
+          SYSTEM UPTIME <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-60"></i>
+        </div>
+        <div class="flex items-baseline gap-x-1">
+          <div id="stat-uptime" class="font-display text-5xl font-semibold tabular-nums">99.87</div>
+          <div class="text-[var(--accent)] text-sm">%</div>
+        </div>
+        <div class="text-xs text-white/50 mt-px">across all platforms</div>
+      </div>
+      <div onclick="editStat('articles')" class="px-8 py-6 bg-[#05070a] cursor-pointer hover:bg-white/5 transition-colors group">
+        <div class="text-[var(--accent)] text-xs tracking-widest mb-1 font-medium flex items-center justify-between">
+          KNOWLEDGE BASE <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-60"></i>
+        </div>
+        <div class="flex items-baseline gap-x-1">
+          <div id="stat-articles" class="font-display text-5xl font-semibold tabular-nums">214</div>
+        </div>
+        <div class="text-xs text-white/50 mt-px">internal articles published</div>
+      </div>
+      <div onclick="editStat('heroes')" class="px-8 py-6 bg-[#05070a] cursor-pointer hover:bg-white/5 transition-colors group">
+        <div class="text-[var(--accent)] text-xs tracking-widest mb-1 font-medium flex items-center justify-between">
+          THE COLLECTIVE <i class="fa-solid fa-pen text-[10px] opacity-0 group-hover:opacity-60"></i>
+        </div>
+        <div class="flex items-baseline gap-x-1">
+          <div id="stat-heroes" class="font-display text-5xl font-semibold tabular-nums">8</div>
+        </div>
+        <div class="text-xs text-white/50 mt-px">IT heroes • always on</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSTELLATION -->
+  <div id="constellation" class="max-w-7xl mx-auto px-8 pt-20 pb-12 relative" style="z-index: 1;">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <div class="uppercase text-[var(--accent)] text-xs tracking-[3px] font-semibold mb-2">NAVIGATION SYSTEM</div>
+        <h2 class="font-display text-4xl tracking-tighter">The IT Constellation</h2>
+        <p class="text-white/60 mt-2 max-w-md">Click any node. Discover how our systems connect.</p>
+      </div>
+      <button onclick="resetConstellation()" 
+              class="text-xs px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 flex items-center gap-x-2 transition">
+        <i class="fa-solid fa-undo text-xs"></i> <span>RESET VIEW</span>
+      </button>
+    </div>
+
+    <div class="glass rounded-3xl p-8 md:p-10 relative overflow-hidden h-[520px]">
+      <svg id="constellation-svg" width="100%" height="100%" class="overflow-visible" style="max-height: 460px;"></svg>
+      <div id="constellation-tooltip" 
+           class="hidden absolute glass rounded-2xl px-5 py-3.5 text-sm pointer-events-none z-50 border border-[var(--accent)]/30 shadow-2xl">
+        <div id="tooltip-title" class="font-semibold"></div>
+        <div id="tooltip-desc" class="text-xs text-white/60 mt-0.5"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE BASE -->
+  <div id="knowledge" class="max-w-7xl mx-auto px-8 pt-12 pb-16 relative border-t border-white/10" style="z-index: 1;">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <div class="text-[var(--accent)] text-xs tracking-[3px] font-semibold mb-2">KNOWLEDGE BASE</div>
+        <h2 class="font-display text-4xl tracking-tighter">Recent Intelligence</h2>
+      </div>
+      <div class="flex items-center gap-x-2 text-xs">
+        <div class="px-3 py-1.5 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-2">
+          <i class="fa-solid fa-filter text-[var(--accent)]"></i>
+          <select id="category-filter" onchange="filterPosts()" class="bg-transparent outline-none text-sm">
+            <option value="">All Categories</option>
+            <option value="infrastructure">Infrastructure</option>
+            <option value="security">Security</option>
+            <option value="howto">How-To</option>
+            <option value="cloud">Cloud &amp; M365</option>
+            <option value="clinical">Clinical Systems</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="posts-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+
+  <!-- THE COLLECTIVE (TEAM) -->
+  <div id="team" class="max-w-7xl mx-auto px-8 py-16 border-t border-white/10 relative" style="z-index: 1;">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <div class="text-[var(--accent)] text-xs tracking-[3px] font-semibold mb-2">THE COLLECTIVE</div>
+        <h2 class="font-display text-4xl tracking-tighter">Meet the Team</h2>
+        <p class="text-white/60 mt-1">The humans behind the uptime.</p>
+      </div>
+      <button onclick="showContentEditor('team')" 
+              class="text-xs px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 flex items-center gap-x-2 transition">
+        <i class="fa-solid fa-plus"></i> <span>ADD MEMBER</span>
+      </button>
+    </div>
+
+    <div id="team-grid" class="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
+  </div>
+
+  <!-- MISSION CONTROL TEASER -->
+  <div id="mission-control" class="max-w-7xl mx-auto px-8 pb-20 relative" style="z-index: 1;">
+    <div class="glass holo rounded-3xl p-10 md:p-14 flex flex-col md:flex-row items-center gap-10 relative">
+      <div class="flex-1">
+        <div class="uppercase tracking-[3px] text-xs text-amber-400 font-semibold">PRO MODE</div>
+        <h3 class="font-display text-4xl tracking-[-1.6px] mt-3 leading-none">Mission Control</h3>
+        <p class="mt-5 max-w-md text-lg text-white/70">
+          A deeper, more immersive view of our entire technology estate. Live status, dependency maps, and the big picture.
+        </p>
+        <button onclick="enterMissionControl()" 
+                class="mt-8 inline-flex items-center gap-x-3 px-7 h-12 rounded-2xl bg-gradient-to-r from-amber-300 to-yellow-300 hover:from-white active:from-white text-[#05070a] font-semibold transition-all">
+          <span>Enter Mission Control</span>
+          <i class="fa-solid fa-rocket"></i>
+        </button>
+      </div>
+      
+      <div class="md:w-[340px] text-xs">
+        <div class="space-y-2.5 text-white/60">
+          <div class="flex justify-between items-center px-4 py-3 bg-black/30 rounded-2xl">
+            <div>Core Systems Health</div>
+            <div class="font-mono text-[var(--accent)]">ALL NOMINAL</div>
+          </div>
+          <div class="flex justify-between items-center px-4 py-3 bg-black/30 rounded-2xl">
+            <div>Active Incidents</div>
+            <div class="font-mono text-amber-400">2 LOW</div>
+          </div>
+          <div class="flex justify-between items-center px-4 py-3 bg-black/30 rounded-2xl">
+            <div>Last Full Sync</div>
+            <div class="font-mono">3m ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-white/10 py-10 text-xs text-white/50 relative" style="z-index: 1;">
+    <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-y-3">
+      <div>© Arroyo Vista Family Health Center • IT Department</div>
+      <div class="flex items-center gap-x-6">
+        <a href="#" class="hover:text-white transition">Internal Wiki</a>
+        <a href="#" class="hover:text-white transition">Status Page</a>
+        <a href="#" class="hover:text-white transition">Submit Ticket</a>
+      </div>
+      <div class="text-white/30">Built with care for the people who keep the lights on.</div>
+    </div>
+  </footer>
+
+  <!-- FLOATING ADMIN BUTTON -->
+  <button onclick="showContentEditor()" 
+          class="fixed bottom-6 right-6 z-[60] flex items-center gap-x-2 px-5 h-11 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-xl text-sm font-medium shadow-xl active:scale-[0.985]">
+    <i class="fa-solid fa-edit"></i>
+    <span>Update Content</span>
+  </button>
+
+  <!-- ARTICLE MODAL -->
+  <div id="article-modal" onclick="if (event.target.id === 'article-modal') closeArticleModal()" 
+       class="hidden fixed inset-0 bg-black/90 z-[70] flex items-center justify-center p-6">
+    <div onclick="event.stopImmediatePropagation()" 
+         class="glass w-full max-w-3xl max-h-[86dvh] rounded-3xl overflow-hidden flex flex-col border border-white/20">
+      <div class="px-8 pt-7 pb-5 border-b border-white/10 flex items-start justify-between">
+        <div>
+          <div id="modal-category" class="uppercase tracking-widest text-xs text-[var(--accent)] font-semibold"></div>
+          <h2 id="modal-title" class="font-display text-3xl tracking-[-1.2px] mt-1 pr-8"></h2>
+        </div>
+        <button onclick="closeArticleModal()" class="w-9 h-9 flex items-center justify-center text-xl text-white/70 hover:text-white">×</button>
+      </div>
+      <div class="flex-1 overflow-auto p-8 text-[15px] leading-relaxed text-white/85 space-y-6" id="modal-body"></div>
+      <div class="px-8 py-5 border-t border-white/10 bg-black/30 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-x-4 text-white/60">
+          <div><span class="font-semibold text-white/90" id="modal-author"></span> • <span id="modal-date"></span></div>
+        </div>
+        <div class="flex items-center gap-x-2">
+          <button onclick="copyArticleLink()" class="px-4 py-1.5 rounded-xl border border-white/15 hover:bg-white/5 flex items-center gap-x-2">
+            <i class="fa-solid fa-link"></i> <span class="hidden sm:inline">Share</span>
+          </button>
+          <button onclick="closeArticleModal()" class="px-5 py-1.5 rounded-xl bg-white/90 hover:bg-white text-[#05070a] font-semibold">Done Reading</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM MEMBER MODAL -->
+  <div id="team-modal" onclick="if (event.target.id === 'team-modal') closeTeamModal()" 
+       class="hidden fixed inset-0 bg-black/90 z-[75] flex items-center justify-center p-6">
+    <div onclick="event.stopImmediatePropagation()" 
+         class="glass w-full max-w-2xl rounded-3xl overflow-hidden border border-white/20">
+      <div class="p-8">
+        <div class="flex gap-6">
+          <div id="team-modal-avatar" class="w-24 h-24 rounded-2xl flex-shrink-0 text-5xl flex items-center justify-center border border-white/10"></div>
+          <div class="flex-1 min-w-0 pt-1">
+            <div id="team-modal-name" class="font-display text-3xl tracking-tight"></div>
+            <div id="team-modal-role" class="text-[var(--accent)] font-semibold"></div>
+            <div id="team-modal-tenure" class="text-xs text-white/50 mt-1"></div>
+          </div>
+          <button onclick="closeTeamModal()" class="text-3xl text-white/50 hover:text-white self-start">×</button>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 text-sm">
+          <div>
+            <div class="uppercase text-xs tracking-widest text-white/50 mb-2">ABOUT ME</div>
+            <div id="team-modal-about" class="text-white/85 leading-relaxed"></div>
+          </div>
+          <div>
+            <div class="uppercase text-xs tracking-widest text-white/50 mb-2">CURRENT FOCUS</div>
+            <div id="team-modal-focus" class="text-white/85 leading-relaxed"></div>
+            
+            <div class="mt-6">
+              <div class="uppercase text-xs tracking-widest text-white/50 mb-2">FAVORITE TICKET STORY</div>
+              <div id="team-modal-story" class="text-white/85 italic"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-white/10">
+          <div class="uppercase text-xs tracking-widest text-white/50 mb-3">SPECIALTIES</div>
+          <div id="team-modal-skills" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME PICKER MODAL -->
+  <div id="theme-modal" onclick="if (event.target.id === 'theme-modal') closeThemePicker()" 
+       class="hidden fixed inset-0 bg-black/90 z-[80] flex items-center justify-center p-6">
+    <div onclick="event.stopImmediatePropagation()" class="glass w-full max-w-lg rounded-3xl p-8 border border-white/20">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <div class="text-xs uppercase tracking-[2px] text-white/50">AESTHETIC PROTOCOL</div>
+          <div class="font-display text-2xl tracking-tight">Choose Your Reality</div>
+        </div>
+        <button onclick="closeThemePicker()" class="text-2xl text-white/50">×</button>
+      </div>
+
+      <div id="theme-grid" class="grid grid-cols-2 gap-3"></div>
+
+      <div class="mt-6 text-[10px] text-center text-white/40">
+        Theme is saved in your browser. It can also auto-rotate each month.
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT EDITOR MODAL -->
+  <div id="editor-modal" onclick="if (event.target.id === 'editor-modal') closeEditor()" 
+       class="hidden fixed inset-0 bg-black/90 z-[85] flex items-center justify-center p-6">
+    <div onclick="event.stopImmediatePropagation()" class="glass w-full max-w-3xl max-h-[90dvh] rounded-3xl overflow-hidden border border-white/20 flex flex-col">
+      <div class="px-8 py-6 border-b border-white/10 flex items-center justify-between">
+        <div class="font-semibold text-xl">Update Live Content</div>
+        <div class="flex gap-2">
+          <button onclick="resetAllData()" class="text-xs px-4 py-2 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10">Reset Everything</button>
+          <button onclick="closeEditor()" class="text-xs px-4 py-2 rounded-xl border border-white/15 hover:bg-white/5">Close</button>
+        </div>
+      </div>
+
+      <div class="flex border-b border-white/10">
+        <button data-tab="stats" onclick="switchEditorTab('stats')" class="editor-tab px-6 py-3 text-sm font-medium border-b-2 border-[var(--accent)]">Live Stats</button>
+        <button data-tab="posts" onclick="switchEditorTab('posts')" class="editor-tab px-6 py-3 text-sm font-medium text-white/60">Recent Intelligence</button>
+        <button data-tab="team" onclick="switchEditorTab('team')" class="editor-tab px-6 py-3 text-sm font-medium text-white/60">The Collective</button>
+        <button data-tab="hero" onclick="switchEditorTab('hero')" class="editor-tab px-6 py-3 text-sm font-medium text-white/60">Hero Text</button>
+      </div>
+
+      <div class="flex-1 overflow-auto p-8" id="editor-content">
+        <!-- Dynamically populated by JS -->
+      </div>
+
+      <div class="p-6 border-t border-white/10 bg-black/30 text-xs flex justify-between items-center">
+        <div class="text-white/50">Changes are saved automatically in your browser.</div>
+        <button onclick="applyDataAndRefresh()" class="px-6 py-2 bg-[var(--accent)] text-[#05070a] font-semibold rounded-2xl text-sm">Apply Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== THEME SYSTEM ====================
+    const THEMES = [
+      {
+        id: 'cyberpunk',
+        name: 'Cyberpunk',
+        month: [1,2], // Jan-Feb example
+        vars: {
+          '--bg': '#05070a',
+          '--glass': 'rgba(10, 17, 24, 0.82)',
+          '--text': '#e8f0f7',
+          '--muted': '#8fa4b8',
+          '--accent': '#22c55e',
+          '--accent-2': '#facc15',
+          '--line': 'rgba(148, 163, 184, 0.15)'
+        },
+        particleColor: '#22c55e',
+        orbColors: ['#22c55e', '#facc15', '#60a5fa']
+      },
+      {
+        id: 'space',
+        name: 'Deep Space',
+        month: [3,4],
+        vars: {
+          '--bg': '#05060f',
+          '--glass': 'rgba(8, 10, 25, 0.85)',
+          '--text': '#d8e1f0',
+          '--muted': '#7f8db5',
+          '--accent': '#60a5fa',
+          '--accent-2': '#a78bfa',
+          '--line': 'rgba(120, 140, 200, 0.18)'
+        },
+        particleColor: '#60a5fa',
+        orbColors: ['#60a5fa', '#a78bfa', '#c026d3']
+      },
+      {
+        id: 'oni',
+        name: 'Japanese Oni',
+        month: [5,6],
+        vars: {
+          '--bg': '#0a0505',
+          '--glass': 'rgba(20, 8, 8, 0.86)',
+          '--text': '#f5e8d3',
+          '--muted': '#b38b7e',
+          '--accent': '#c02626',
+          '--accent-2': '#f59e0b',
+          '--line': 'rgba(180, 80, 70, 0.22)'
+        },
+        particleColor: '#c02626',
+        orbColors: ['#c02626', '#f59e0b', '#7f1d1d']
+      },
+      {
+        id: 'fantasy',
+        name: 'Dark Fantasy',
+        month: [7,8],
+        vars: {
+          '--bg': '#070a08',
+          '--glass': 'rgba(12, 18, 15, 0.84)',
+          '--text': '#e6d9c2',
+          '--muted': '#8f9e8a',
+          '--accent': '#4ade80',
+          '--accent-2': '#fbbf24',
+          '--line': 'rgba(110, 130, 105, 0.2)'
+        },
+        particleColor: '#4ade80',
+        orbColors: ['#4ade80', '#fbbf24', '#166534']
+      },
+      {
+        id: 'arctic',
+        name: 'Arctic Protocol',
+        month: [9,10],
+        vars: {
+          '--bg': '#05080c',
+          '--glass': 'rgba(8, 14, 22, 0.85)',
+          '--text': '#d6e8f0',
+          '--muted': '#7fa8c2',
+          '--accent': '#67e8f9',
+          '--accent-2': '#bae6fd',
+          '--line': 'rgba(100, 160, 200, 0.18)'
+        },
+        particleColor: '#67e8f9',
+        orbColors: ['#67e8f9', '#bae6fd', '#0e7490']
+      },
+      {
+        id: 'solar',
+        name: 'Solar Protocol',
+        month: [11,12],
+        vars: {
+          '--bg': '#0a0703',
+          '--glass': 'rgba(18, 12, 6, 0.84)',
+          '--text': '#f5e8c7',
+          '--muted': '#b89f75',
+          '--accent': '#fb923c',
+          '--accent-2': '#fde047',
+          '--line': 'rgba(190, 140, 70, 0.2)'
+        },
+        particleColor: '#fb923c',
+        orbColors: ['#fb923c', '#fde047', '#9f1239']
+      }
+    ];
+
+    let currentTheme = 'cyberpunk';
+
+    function getThemeForCurrentMonth() {
+      const month = new Date().getMonth() + 1;
+      const found = THEMES.find(t => t.month.includes(month));
+      return found ? found.id : 'cyberpunk';
+    }
+
+    function applyTheme(themeId, save = true) {
+      const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+      currentTheme = theme.id;
+
+      const root = document.documentElement;
+      Object.entries(theme.vars).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+
+      document.getElementById('current-theme-name').textContent = theme.name.toUpperCase();
+
+      // Update background canvas colors
+      if (window.backgroundCanvas) {
+        window.backgroundCanvas.theme = theme;
+        window.backgroundCanvas.needsRedraw = true;
+      }
+
+      // Update hero particles color hint
+      if (window.heroParticles) {
+        window.heroParticlesColor = theme.particleColor;
+      }
+
+      if (save) {
+        localStorage.setItem('av_it_theme', themeId);
+      }
+
+      // Subtle flash effect on theme change
+      document.body.classList.add('theme-transition');
+      setTimeout(() => document.body.classList.remove('theme-transition'), 700);
+    }
+
+    function showThemePicker() {
+      const modal = document.getElementById('theme-modal');
+      const grid = document.getElementById('theme-grid');
+      grid.innerHTML = '';
+
+      THEMES.forEach(theme => {
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-2xl border cursor-pointer hover:border-white/30 transition-all ${currentTheme === theme.id ? 'border-[var(--accent)] bg-white/5' : 'border-white/10'}`;
+        card.innerHTML = `
+          <div class="font-semibold">${theme.name}</div>
+          <div class="text-xs text-white/50 mt-1">Months ${theme.month.join(' & ')}</div>
+        `;
+        card.onclick = () => {
+          applyTheme(theme.id);
+          closeThemePicker();
+          showToast(`Switched to ${theme.name} aesthetic`);
+        };
+        grid.appendChild(card);
+      });
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeThemePicker() {
+      const modal = document.getElementById('theme-modal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    // ==================== CENTRAL DATA LAYER (EASY TO EDIT) ====================
+    const DEFAULT_DATA = {
+      hero: {
+        headline: "The quiet force<br>keeping everything<br>running.",
+        subhead: "This is the central nervous system of Arroyo Vista's technology. Documentation, experiments, and hard-won knowledge from the team that makes the impossible look easy."
+      },
+      stats: {
+        tickets: 1247,
+        uptime: 99.87,
+        articles: 214,
+        heroes: 8
+      },
+      posts: [
+        {
+          id: 1, title: "New Conditional Access Policies for Clinical Workstations",
+          category: "security", categoryLabel: "Security",
+          excerpt: "We've rolled out stricter but smarter sign-in policies for all clinical staff. Here's what changed and why it matters.",
+          date: "2026-01-28", author: "Marcus R.", readTime: "6 min",
+          body: `<p>We recently updated our Conditional Access policies for all clinical workstations. The goal was simple: reduce our attack surface without creating friction for providers who need fast access during patient care.</p><p><strong>What changed:</strong></p><ul class="list-disc pl-5 space-y-1.5"><li>Trusted locations now include all clinic buildings + approved remote sites</li><li>MFA is required for all new device registrations</li><li>Block legacy authentication protocols globally</li><li>New "break-glass" emergency accounts with separate monitoring</li></ul><p>The biggest lesson: Always involve nursing leadership early when tightening security around clinical devices. Their buy-in made the rollout dramatically smoother.</p>`
+        },
+        {
+          id: 2, title: "How We Cut Imaging Retrieval Times by 68%",
+          category: "clinical", categoryLabel: "Clinical Systems",
+          excerpt: "A deep dive into our PACS optimization project. Less waiting, happier radiologists.",
+          date: "2026-01-21", author: "Elena S.", readTime: "9 min",
+          body: `<p>Our PACS had become painfully slow for radiologists reading from multiple locations. Average study retrieval was sitting around 14 seconds.</p><p>After three weeks of tuning we brought it down to 4.5 seconds average.</p><p>Key changes:</p><ol class="list-decimal pl-5 space-y-1"><li>Implemented intelligent prefetching based on scheduled exams</li><li>Moved the DICOM cache to NVMe-backed storage</li><li>Added a second read-only replica in the secondary data center</li><li>Compression tuning + smarter JPEG2000 settings</li></ol>`
+        },
+        {
+          id: 3, title: "Dental Sensor Deployment: What We Learned",
+          category: "howto", categoryLabel: "How-To",
+          excerpt: "Rolling out new digital sensors across all dental sites. The surprises, the wins, and the checklist we wish we had.",
+          date: "2026-01-15", author: "Luis M.", readTime: "4 min",
+          body: `<p>We just finished deploying 42 new digital sensors across our dental clinics. Here are the real lessons from the field:</p><p><strong>1. Driver hell is real</strong><br>Even with "plug and play" claims, we had to create custom driver packages for our thin clients.</p><p><strong>2. Calibration is everything</strong><br>We now run a standardized calibration script on every install. Saves massive headaches later.</p><p><strong>3. Training materials matter more than the hardware</strong><br>The laminated one-page quick reference we created got used way more than the vendor manual.</p>`
+        }
+      ],
+      team: [
+        {
+          id: 1, name: "Marcus Rivera", role: "IT Security Lead",
+          tenure: "6 years at AV", avatar: "🛡️",
+          about: "I live and breathe zero-trust. My job is to make sure the bad guys have a terrible day while clinicians can still do their jobs without friction.",
+          focus: "Conditional Access, endpoint detection, and red team exercises every quarter.",
+          story: "Once spent 11 hours chasing a phantom ransomware alert that turned out to be a single misconfigured printer. Never let anyone forget it.",
+          skills: ["Zero Trust", "EDR", "Incident Response", "MFA Architecture"]
+        },
+        {
+          id: 2, name: "Elena Soto", role: "Clinical Systems Administrator",
+          tenure: "4 years at AV", avatar: "🩺",
+          about: "I make sure the tools our providers use every day actually work when seconds matter. PACS, EHR interfaces, and lab systems are my world.",
+          focus: "PACS optimization, HL7/FHIR interfaces, and downtime procedures that don't panic anyone.",
+          story: "During a 3am PACS outage I rebuilt the cache from backups while on a video call with a radiologist who was reading from home in his pajamas.",
+          skills: ["PACS", "DICOM", "EHR Integration", "HL7"]
+        },
+        {
+          id: 3, name: "Priya Kapoor", role: "Cloud & Identity Engineer",
+          tenure: "3 years at AV", avatar: "☁️",
+          about: "I make Microsoft 365 and Azure feel boring in the best way possible. If identity is working perfectly, nobody notices me — and that's the goal.",
+          focus: "Entra ID, conditional access policies, and making our hybrid environment behave like a single clean system.",
+          story: "I once accidentally locked myself out of the tenant for 47 minutes. It was the fastest I have ever documented a process.",
+          skills: ["Entra ID", "Azure", "PowerShell", "Conditional Access"]
+        },
+        {
+          id: 4, name: "Luis Mendoza", role: "Field Systems Technician",
+          tenure: "7 years at AV", avatar: "🔧",
+          about: "I still believe the best debugging tool is sometimes just being physically in the room. I fix the things that tickets can't fully describe.",
+          focus: "Dental sensors, thin clients, printer fleets, and anything that beeps angrily at 4pm on a Friday.",
+          story: "I once found a 12-year-old server still running in a closet that nobody had documented. It was named 'BOB'.",
+          skills: ["Hardware", "Thin Clients", "Printers", "On-site Support"]
+        }
+      ]
+    };
+
+    let DATA = {};
+
+    function loadData() {
+      const saved = localStorage.getItem('av_it_data');
+      if (saved) {
+        try {
+          DATA = JSON.parse(saved);
+          // Merge missing keys from defaults
+          DATA = { ...DEFAULT_DATA, ...DATA };
+          if (!DATA.team) DATA.team = DEFAULT_DATA.team;
+          if (!DATA.posts) DATA.posts = DEFAULT_DATA.posts;
+        } catch(e) { DATA = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+      } else {
+        DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('av_it_data', JSON.stringify(DATA));
+    }
+
+    function applyDataAndRefresh() {
+      saveData();
+      // Refresh visible dynamic parts
+      renderStats();
+      renderPosts();
+      renderTeam();
+      updateHeroText();
+      showToast('Content updated and saved');
+      closeEditor();
+    }
+
+    function resetAllData() {
+      if (!confirm('Reset ALL content to defaults? This cannot be undone.')) return;
+      localStorage.removeItem('av_it_data');
+      DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      applyDataAndRefresh();
+    }
+
+    // ==================== RENDER FUNCTIONS ====================
+    function renderStats() {
+      document.getElementById('stat-tickets').textContent = DATA.stats.tickets;
+      document.getElementById('stat-uptime').textContent = DATA.stats.uptime;
+      document.getElementById('stat-articles').textContent = DATA.stats.articles;
+      document.getElementById('stat-heroes').textContent = DATA.stats.heroes;
+
+      document.getElementById('hero-stat-articles').textContent = DATA.stats.articles + ' ARTICLES';
+      document.getElementById('hero-stat-team').textContent = DATA.stats.heroes + ' HEROES ONLINE';
+    }
+
+    function updateHeroText() {
+      document.getElementById('hero-headline').innerHTML = DATA.hero.headline;
+      document.getElementById('hero-subhead').textContent = DATA.hero.subhead;
+    }
+
+    let currentPosts = [];
+
+    function renderPosts(filtered = null) {
+      const grid = document.getElementById('posts-grid');
+      grid.innerHTML = '';
+      currentPosts = filtered || DATA.posts;
+
+      currentPosts.forEach(post => {
+        const card = document.createElement('div');
+        card.className = `blog-card glass holo rounded-3xl p-6 flex flex-col cursor-pointer border border-white/10 hover:border-[var(--accent)]/30`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="post-tag px-3 py-px rounded-full bg-[var(--accent)]/10 text-[var(--accent)]">${post.categoryLabel}</div>
+            <div class="text-[10px] text-white/40">${post.readTime}</div>
+          </div>
+          <h3 class="mt-5 font-semibold text-[17px] leading-tight tracking-tight pr-2">${post.title}</h3>
+          <p class="mt-3 text-sm text-white/60 line-clamp-3 flex-1">${post.excerpt}</p>
+          <div class="flex items-center justify-between mt-6 pt-5 border-t border-white/10 text-xs">
+            <div class="text-white/50">${post.author} • ${new Date(post.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+            <div class="text-[var(--accent)] font-medium flex items-center gap-x-1">READ <i class="fa-solid fa-arrow-right text-xs ml-px"></i></div>
+          </div>
+        `;
+        card.onclick = () => openArticle(post);
+        grid.appendChild(card);
+      });
+    }
+
+    function filterPosts() {
+      const val = document.getElementById('category-filter').value;
+      const filtered = val ? DATA.posts.filter(p => p.category === val) : DATA.posts;
+      renderPosts(filtered);
+    }
+
+    function renderTeam() {
+      const grid = document.getElementById('team-grid');
+      grid.innerHTML = '';
+
+      DATA.team.forEach(member => {
+        const card = document.createElement('div');
+        card.className = `team-card glass rounded-3xl p-6 cursor-pointer border border-white/10 hover:border-[var(--accent)]/30`;
+        card.innerHTML = `
+          <div class="text-5xl mb-4">${member.avatar}</div>
+          <div class="font-semibold text-lg leading-tight">${member.name}</div>
+          <div class="text-sm text-[var(--accent)]">${member.role}</div>
+          <div class="text-xs text-white/50 mt-3">${member.tenure}</div>
+        `;
+        card.onclick = () => openTeamModal(member);
+        grid.appendChild(card);
+      });
+    }
+
+    // ==================== MODALS ====================
+    let currentPost = null;
+    function openArticle(post) {
+      currentPost = post;
+      document.getElementById('modal-category').textContent = post.categoryLabel.toUpperCase();
+      document.getElementById('modal-title').textContent = post.title;
+      document.getElementById('modal-body').innerHTML = post.body;
+      document.getElementById('modal-author').textContent = post.author;
+      document.getElementById('modal-date').textContent = new Date(post.date).toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+      const modal = document.getElementById('article-modal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+      gsap.fromTo('#modal-body', {opacity:0, y:15}, {opacity:1, y:0, duration:0.5, ease:'power2.out'});
+    }
+    function closeArticleModal() {
+      const modal = document.getElementById('article-modal');
+      modal.classList.remove('flex'); modal.classList.add('hidden');
+    }
+
+    let currentMember = null;
+    function openTeamModal(member) {
+      currentMember = member;
+      document.getElementById('team-modal-avatar').innerHTML = member.avatar;
+      document.getElementById('team-modal-name').textContent = member.name;
+      document.getElementById('team-modal-role').textContent = member.role;
+      document.getElementById('team-modal-tenure').textContent = member.tenure;
+      document.getElementById('team-modal-about').innerHTML = member.about;
+      document.getElementById('team-modal-focus').innerHTML = member.focus;
+      document.getElementById('team-modal-story').innerHTML = member.story;
+
+      const skillsEl = document.getElementById('team-modal-skills');
+      skillsEl.innerHTML = member.skills.map(s => 
+        `<div class="px-4 py-1 text-xs rounded-full bg-white/5 border border-white/10">${s}</div>`
+      ).join('');
+
+      const modal = document.getElementById('team-modal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+    function closeTeamModal() {
+      const modal = document.getElementById('team-modal');
+      modal.classList.remove('flex'); modal.classList.add('hidden');
+    }
+
+    function copyArticleLink() {
+      if (!currentPost) return;
+      navigator.clipboard.writeText(location.origin + location.pathname + '#post-' + currentPost.id);
+      showToast('Link copied');
+    }
+
+    // ==================== CONTENT EDITOR ====================
+    let currentEditorTab = 'stats';
+
+    function showContentEditor(defaultTab = 'stats') {
+      const modal = document.getElementById('editor-modal');
+      modal.classList.remove('hidden'); modal.classList.add('flex');
+      switchEditorTab(defaultTab);
+    }
+
+    function closeEditor() {
+      const modal = document.getElementById('editor-modal');
+      modal.classList.remove('flex'); modal.classList.add('hidden');
+    }
+
+    function switchEditorTab(tab) {
+      currentEditorTab = tab;
+      document.querySelectorAll('.editor-tab').forEach(el => {
+        el.classList.toggle('border-[var(--accent)]', el.dataset.tab === tab);
+        el.classList.toggle('text-white/60', el.dataset.tab !== tab);
+      });
+
+      const container = document.getElementById('editor-content');
+      container.innerHTML = '';
+
+      if (tab === 'stats') {
+        container.innerHTML = `
+          <div class="space-y-6 max-w-md">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">Tickets Resolved This Month</label>
+              <input type="number" id="edit-tickets" value="${DATA.stats.tickets}" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-2xl font-semibold">
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">System Uptime %</label>
+              <input type="number" step="0.01" id="edit-uptime" value="${DATA.stats.uptime}" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-2xl font-semibold">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">Articles Published</label>
+                <input type="number" id="edit-articles" value="${DATA.stats.articles}" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-2xl font-semibold">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">Heroes Online</label>
+                <input type="number" id="edit-heroes" value="${DATA.stats.heroes}" class="w-full bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-2xl font-semibold">
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'hero') {
+        container.innerHTML = `
+          <div class="space-y-6">
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">Hero Headline (HTML allowed)</label>
+              <textarea id="edit-headline" class="w-full h-28 bg-black/40 border border-white/15 rounded-2xl px-4 py-3 text-lg">${DATA.hero.headline}</textarea>
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest text-white/50 mb-1">Hero Subheadline</label>
+              <textarea id="edit-subhead" class="w-full h-24 bg-black/40 border border-white/15 rounded-2xl px-4 py-3">${DATA.hero.subhead}</textarea>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'posts') {
+        let html = `<div class="space-y-4">`;
+        DATA.posts.forEach((p, i) => {
+          html += `
+            <div class="border border-white/10 rounded-2xl p-4">
+              <div class="flex justify-between items-start">
+                <div class="font-semibold">${p.title}</div>
+                <button onclick="deletePost(${i})" class="text-red-400 text-xs">DELETE</button>
+              </div>
+              <div class="text-xs text-white/50 mt-1">${p.author} • ${p.categoryLabel}</div>
+              <input value="${p.excerpt}" class="mt-2 w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-sm" onchange="updatePostField(${i}, 'excerpt', this.value)">
+            </div>`;
+        });
+        html += `</div><button onclick="addNewPost()" class="mt-4 text-xs px-4 py-2 border border-white/15 rounded-xl hover:bg-white/5">+ ADD NEW ARTICLE</button>`;
+        container.innerHTML = html;
+      } else if (tab === 'team') {
+        let html = `<div class="space-y-3">`;
+        DATA.team.forEach((m, i) => {
+          html += `
+            <div class="border border-white/10 rounded-2xl p-4 flex gap-4">
+              <div class="text-4xl">${m.avatar}</div>
+              <div class="flex-1">
+                <div class="font-semibold">${m.name} — <span class="text-[var(--accent)]">${m.role}</span></div>
+                <button onclick="editTeamMember(${i})" class="text-xs mt-2 px-3 py-1 border border-white/15 rounded-lg">EDIT</button>
+                <button onclick="deleteTeamMember(${i})" class="text-xs mt-2 px-3 py-1 text-red-400 ml-1">DELETE</button>
+              </div>
+            </div>`;
+        });
+        html += `</div><button onclick="addNewTeamMember()" class="mt-4 text-xs px-4 py-2 border border-white/15 rounded-xl hover:bg-white/5">+ ADD TEAM MEMBER</button>`;
+        container.innerHTML = html;
+      }
+    }
+
+    function updatePostField(index, field, value) {
+      DATA.posts[index][field] = value;
+    }
+
+    function deletePost(index) {
+      if (!confirm('Delete this article?')) return;
+      DATA.posts.splice(index, 1);
+      switchEditorTab('posts');
+    }
+
+    function addNewPost() {
+      const newPost = {
+        id: Date.now(),
+        title: "New Article Title",
+        category: "howto", categoryLabel: "How-To",
+        excerpt: "Short description of what this article covers.",
+        date: new Date().toISOString().split('T')[0],
+        author: "IT Team", readTime: "5 min",
+        body: "<p>Write the full article body here using HTML.</p>"
+      };
+      DATA.posts.unshift(newPost);
+      switchEditorTab('posts');
+    }
+
+    function editTeamMember(index) {
+      const m = DATA.team[index];
+      const name = prompt('Name:', m.name);
+      if (!name) return;
+      const role = prompt('Role:', m.role);
+      if (!role) return;
+      const about = prompt('About Me (short paragraph):', m.about);
+      if (!about) return;
+
+      DATA.team[index].name = name;
+      DATA.team[index].role = role;
+      DATA.team[index].about = about;
+      switchEditorTab('team');
+    }
+
+    function deleteTeamMember(index) {
+      if (!confirm('Remove this team member?')) return;
+      DATA.team.splice(index, 1);
+      switchEditorTab('team');
+    }
+
+    function addNewTeamMember() {
+      const name = prompt('Full Name:');
+      if (!name) return;
+      const role = prompt('Job Title / Role:');
+      if (!role) return;
+
+      DATA.team.push({
+        id: Date.now(),
+        name, role,
+        tenure: "New",
+        avatar: "👤",
+        about: "Write a short about me paragraph.",
+        focus: "What they are currently working on.",
+        story: "A favorite or funny ticket story.",
+        skills: ["New Skills"]
+      });
+      switchEditorTab('team');
+    }
+
+    function editStat(key) {
+      const val = prompt(`Update ${key}:`, DATA.stats[key]);
+      if (val === null) return;
+      DATA.stats[key] = key === 'uptime' ? parseFloat(val) : parseInt(val);
+      renderStats();
+      saveData();
+      showToast('Stat updated');
+    }
+
+    // ==================== DYNAMIC ANIMATED BACKGROUND ====================
+    let bgCanvas, bgCtx, bgParticles = [], bgOrbs = [];
+
+    function initDynamicBackground() {
+      bgCanvas = document.getElementById('background-canvas');
+      bgCtx = bgCanvas.getContext('2d', { alpha: true });
+
+      function resize() {
+        bgCanvas.width = window.innerWidth;
+        bgCanvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      // Create drifting particles + soft orbs
+      bgParticles = [];
+      for (let i = 0; i < 85; i++) {
+        bgParticles.push({
+          x: Math.random() * bgCanvas.width,
+          y: Math.random() * bgCanvas.height,
+          size: Math.random() * 1.8 + 0.6,
+          speed: Math.random() * 0.12 + 0.04,
+          angle: Math.random() * Math.PI * 2,
+          opacity: Math.random() * 0.35 + 0.1
+        });
+      }
+
+      bgOrbs = [];
+      for (let i = 0; i < 7; i++) {
+        bgOrbs.push({
+          x: Math.random() * bgCanvas.width,
+          y: Math.random() * bgCanvas.height,
+          r: Math.random() * 110 + 70,
+          speedX: (Math.random() - 0.5) * 0.18,
+          speedY: (Math.random() - 0.5) * 0.11,
+          opacity: Math.random() * 0.08 + 0.03
+        });
+      }
+
+      window.backgroundCanvas = { theme: THEMES[0], needsRedraw: true };
+
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', e => {
+        mouseX = e.clientX; mouseY = e.clientY;
+      });
+
+      function animate() {
+        const w = bgCanvas.width, h = bgCanvas.height;
+        bgCtx.clearRect(0, 0, w, h);
+
+        const theme = window.backgroundCanvas.theme || THEMES[0];
+        const accent = theme.particleColor || '#22c55e';
+        const orbCols = theme.orbColors || ['#22c55e', '#facc15'];
+
+        // Subtle moving grid
+        bgCtx.strokeStyle = 'rgba(148,163,184,0.06)';
+        bgCtx.lineWidth = 1;
+        const gridSize = 58;
+        const offsetX = (Date.now() / 38000) % gridSize;
+        const offsetY = (Date.now() / 52000) % gridSize;
+
+        for (let x = -gridSize + offsetX; x < w; x += gridSize) {
+          bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, h); bgCtx.stroke();
+        }
+        for (let y = -gridSize + offsetY; y < h; y += gridSize) {
+          bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(w, y); bgCtx.stroke();
+        }
+
+        // Soft drifting orbs
+        bgOrbs.forEach((orb, i) => {
+          orb.x += orb.speedX;
+          orb.y += orb.speedY;
+          if (orb.x < -orb.r) orb.x = w + orb.r;
+          if (orb.x > w + orb.r) orb.x = -orb.r;
+          if (orb.y < -orb.r) orb.y = h + orb.r;
+          if (orb.y > h + orb.r) orb.y = -orb.r;
+
+          const col = orbCols[i % orbCols.length];
+          const grad = bgCtx.createRadialGradient(orb.x, orb.y, 8, orb.x, orb.y, orb.r);
+          grad.addColorStop(0, col + '22');
+          grad.addColorStop(0.6, col + '08');
+          grad.addColorStop(1, 'transparent');
+
+          bgCtx.fillStyle = grad;
+          bgCtx.beginPath();
+          bgCtx.arc(orb.x, orb.y, orb.r, 0, Math.PI * 2);
+          bgCtx.fill();
+        });
+
+        // Floating particles with gentle mouse repulsion
+        bgParticles.forEach(p => {
+          p.y += p.speed;
+          p.x += Math.sin(p.angle) * 0.22;
+          p.angle += 0.008;
+
+          if (p.y > h) { p.y = -5; p.x = Math.random() * w; }
+
+          // Mouse interaction
+          const dx = p.x - mouseX;
+          const dy = p.y - mouseY;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < 160 && dist > 5) {
+            p.x += (dx / dist) * 0.8;
+            p.y += (dy / dist) * 0.8;
+          }
+
+          bgCtx.fillStyle = accent + Math.floor(p.opacity * 180).toString(16).padStart(2,'0');
+          bgCtx.beginPath();
+          bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          bgCtx.fill();
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    // ==================== LIGHTWEIGHT HERO PARTICLES ====================
+    function initHeroParticles() {
+      const canvas = document.getElementById('hero-particles');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      let particles = [];
+
+      function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+      window.addEventListener('resize', resize); resize();
+
+      class P {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height * 0.9;
+          this.size = Math.random() * 1.4 + 0.5;
+          this.speed = Math.random() * 0.18 + 0.04;
+          this.opacity = Math.random() * 0.45 + 0.15;
+        }
+        update() {
+          this.y += this.speed;
+          if (this.y > canvas.height) this.reset();
+          this.x += Math.sin(this.y * 0.018) * 0.3;
+        }
+        draw(accent) {
+          ctx.fillStyle = (accent || '#22c55e') + Math.floor(this.opacity * 210).toString(16).padStart(2,'0');
+          ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+        }
+      }
+
+      for (let i=0; i<55; i++) particles.push(new P());
+
+      window.heroParticles = particles;
+      window.heroParticlesColor = '#22c55e';
+
+      function loop() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        particles.forEach(p => { p.update(); p.draw(window.heroParticlesColor); });
+        requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    // ==================== CONSTELLATION (SVG) - KEPT & ENHANCED ====================
+    // (Keeping the original interactive constellation logic but making it theme aware)
+    const constellationData = [
+      { id:'infra', label:'Infrastructure', x:220, y:180, category:'infrastructure', desc:'Servers, storage, networking, virtualization' },
+      { id:'security', label:'Cybersecurity', x:480, y:120, category:'security', desc:'Defenses, monitoring, identity, compliance' },
+      { id:'clinical', label:'Clinical Systems', x:680, y:210, category:'clinical', desc:'EHR, imaging, lab interfaces, dental' },
+      { id:'cloud', label:'Cloud & Identity', x:310, y:310, category:'cloud', desc:'M365, Azure, SSO, conditional access' },
+      { id:'enduser', label:'End User', x:540, y:290, category:'howto', desc:'Workstations, peripherals, remote access' },
+      { id:'data', label:'Data & Reporting', x:150, y:290, category:'infrastructure', desc:'SQL, Power BI, interfaces, archives' },
+    ];
+    const connections = [['infra','security'],['infra','cloud'],['infra','data'],['security','cloud'],['security','clinical'],['cloud','enduser'],['cloud','clinical'],['clinical','data'],['enduser','data']];
+
+    let svg, activeNode = null;
+
+    function createConstellation() {
+      svg = document.getElementById('constellation-svg');
+      svg.innerHTML = '';
+
+      connections.forEach(([a,b]) => {
+        const na = constellationData.find(n=>n.id===a), nb = constellationData.find(n=>n.id===b);
+        const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+        line.setAttribute('x1',na.x); line.setAttribute('y1',na.y);
+        line.setAttribute('x2',nb.x); line.setAttribute('y2',nb.y);
+        line.setAttribute('stroke','rgba(148,163,184,0.25)');
+        line.setAttribute('stroke-width','1.5');
+        line.setAttribute('stroke-dasharray','2 3');
+        svg.appendChild(line);
+      });
+
+      constellationData.forEach(node => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+        g.classList.add('node');
+
+        const ring = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ring.setAttribute('cx',node.x); ring.setAttribute('cy',node.y); ring.setAttribute('r','28');
+        ring.setAttribute('fill','none'); ring.setAttribute('stroke','rgba(34,197,94,0.15)'); ring.setAttribute('stroke-width','6');
+        g.appendChild(ring);
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circle.setAttribute('cx',node.x); circle.setAttribute('cy',node.y); circle.setAttribute('r','13');
+        circle.setAttribute('fill','#0a1118'); circle.setAttribute('stroke','var(--accent)'); circle.setAttribute('stroke-width','2.5');
+        g.appendChild(circle);
+
+        const inner = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        inner.setAttribute('cx',node.x); inner.setAttribute('cy',node.y); inner.setAttribute('r','4.5');
+        inner.setAttribute('fill','var(--accent)');
+        g.appendChild(inner);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+        text.setAttribute('x',node.x); text.setAttribute('y',node.y+42); text.setAttribute('text-anchor','middle');
+        text.setAttribute('fill','#e8f0f7'); text.setAttribute('font-size','12'); text.setAttribute('font-weight','500');
+        text.textContent = node.label;
+        g.appendChild(text);
+
+        g.addEventListener('click', () => selectConstellationNode(node, g));
+        g.addEventListener('mouseenter', e => showConstellationTooltip(node, e));
+        g.addEventListener('mouseleave', hideConstellationTooltip);
+
+        svg.appendChild(g);
+        node.element = g;
+      });
+    }
+
+    function selectConstellationNode(node, el) {
+      if (activeNode) {
+        activeNode.element.classList.remove('active');
+        activeNode.element.querySelectorAll('circle').forEach(c => c.setAttribute('stroke','var(--accent)'));
+      }
+      activeNode = node;
+      el.classList.add('active');
+      el.querySelectorAll('circle').forEach(c => { if (c.getAttribute('r')==='13') c.setAttribute('stroke','var(--accent-2)'); });
+
+      document.getElementById('category-filter').value = node.category;
+      filterPosts();
+      setTimeout(() => document.getElementById('knowledge').scrollIntoView({behavior:'smooth'}), 280);
+      showToast(`Filtering to ${node.label}`);
+    }
+
+    function showConstellationTooltip(node, e) {
+      const tip = document.getElementById('constellation-tooltip');
+      tip.style.left = (e.pageX + 18)+'px'; tip.style.top = (e.pageY - 12)+'px';
+      tip.classList.remove('hidden'); tip.classList.add('flex','flex-col');
+      document.getElementById('tooltip-title').textContent = node.label;
+      document.getElementById('tooltip-desc').textContent = node.desc;
+    }
+    function hideConstellationTooltip() {
+      const tip = document.getElementById('constellation-tooltip');
+      tip.classList.remove('flex'); tip.classList.add('hidden');
+    }
+    function resetConstellation() {
+      if (activeNode) {
+        activeNode.element.classList.remove('active');
+        activeNode.element.querySelectorAll('circle').forEach(c => { if (c.getAttribute('r')==='13') c.setAttribute('stroke','var(--accent)'); });
+        activeNode = null;
+      }
+      document.getElementById('category-filter').value = '';
+      filterPosts();
+    }
+
+    // ==================== MISSION CONTROL (updated to use live data) ====================
+    function enterMissionControl() {
+      const mc = document.createElement('div');
+      mc.className = `fixed inset-0 bg-[#05070a] z-[90] flex flex-col`;
+      mc.innerHTML = `
+        <div class="h-16 border-b border-white/10 flex items-center px-8 justify-between">
+          <div class="flex items-center gap-x-4">
+            <div class="font-semibold tracking-tight text-xl">MISSION CONTROL</div>
+            <div class="text-[var(--accent)] text-xs px-3 py-1 rounded-full border border-[var(--accent)]/30">LIVE • THEME: <span id="mc-theme">${THEMES.find(t=>t.id===currentTheme).name}</span></div>
+          </div>
+          <button class="px-5 h-9 rounded-2xl border border-white/15 text-sm hover:bg-white/5" onclick="this.closest('.fixed').remove()">EXIT PRO MODE</button>
+        </div>
+        <div class="flex-1 p-8 max-w-7xl mx-auto w-full overflow-auto">
+          <div class="grid md:grid-cols-12 gap-4">
+            <div class="md:col-span-5 glass rounded-3xl p-8">
+              <div class="uppercase text-xs tracking-widest text-[var(--accent)] mb-4">CORE SYSTEMS • LIVE</div>
+              <div class="space-y-6 text-sm">
+                <div class="flex justify-between"><div>Primary Domain Controllers</div><div class="font-medium text-[var(--accent)]">HEALTHY</div></div>
+                <div class="flex justify-between"><div>Azure AD Sync</div><div class="font-medium text-[var(--accent)]">HEALTHY</div></div>
+                <div class="flex justify-between"><div>Clinical Interface Engine</div><div class="font-medium text-[var(--accent)]">HEALTHY</div></div>
+                <div class="flex justify-between"><div>PACS / Imaging</div><div class="font-medium text-amber-400">DEGRADED (1 SITE)</div></div>
+              </div>
+            </div>
+            <div class="md:col-span-7 glass rounded-3xl p-8">
+              <div class="uppercase text-xs tracking-widest text-[var(--accent)] mb-4">LIVE METRICS FROM DATA</div>
+              <div class="grid grid-cols-2 gap-4 text-sm">
+                <div class="bg-black/30 rounded-2xl p-5"><div class="text-white/50 text-xs">TICKETS THIS MONTH</div><div class="text-4xl font-semibold mt-1">${DATA.stats.tickets}</div></div>
+                <div class="bg-black/30 rounded-2xl p-5"><div class="text-white/50 text-xs">SYSTEM UPTIME</div><div class="text-4xl font-semibold mt-1">${DATA.stats.uptime}<span class="text-base align-super">%</span></div></div>
+              </div>
+            </div>
+            <div class="md:col-span-12 glass rounded-3xl p-8">
+              <div class="text-2xl tracking-tight">The system is a living organism.</div>
+              <p class="text-white/70 mt-3 max-w-2xl">In a future version this screen would be powered by real-time telemetry, live logs, and a Three.js dependency graph. For now it reflects the numbers you update in the Content Editor.</p>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(mc);
+    }
+
+    // ==================== UTILITIES ====================
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-2xl text-sm border border-white/15 z-[95] flex items-center gap-x-2`;
+      t.innerHTML = `<i class="fa-solid fa-check text-[var(--accent)]"></i> <span>${msg}</span>`;
+      document.body.appendChild(t);
+      setTimeout(() => gsap.to(t, {opacity:0, y:10, duration:0.3, onComplete:()=>t.remove()}), 2100);
+    }
+
+    function showContactModal() {
+      const m = document.createElement('div');
+      m.className = 'fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-6';
+      m.innerHTML = `
+        <div class="glass max-w-md w-full rounded-3xl p-8 border border-white/15">
+          <div class="flex justify-between"><div class="text-[var(--accent)] text-xs tracking-widest">DIRECT LINE</div><button class="text-3xl text-white/50" onclick="this.closest('.fixed').remove()">×</button></div>
+          <div class="font-display text-3xl tracking-tight mt-1">Need help right now?</div>
+          <div class="mt-8 space-y-5 text-sm">
+            <div><div class="text-white/50 text-xs">HELP DESK</div><div class="font-semibold">x4350 • helpdesk@arroyovista.org</div></div>
+            <div><div class="text-white/50 text-xs">AFTER HOURS</div><div class="font-semibold">1-800-555-IT-ONCALL</div></div>
+          </div>
+        </div>`;
+      document.body.appendChild(m);
+      m.onclick = e => { if (e.target === m) m.remove(); };
+    }
+
+    let logoClicks = 0;
+    function logoClickEasterEgg() {
+      logoClicks++;
+      if (logoClicks >= 5) {
+        logoClicks = 0;
+        showToast('Hidden lounge unlocked');
+        setTimeout(() => enterMissionControl(), 650);
+      }
+      setTimeout(() => logoClicks = 0, 2600);
+    }
+
+    function initMagnetic() {
+      document.querySelectorAll('.magnetic').forEach(btn => {
+        btn.addEventListener('mousemove', function(e){
+          const r = this.getBoundingClientRect();
+          const x = ((e.clientX - r.left)/r.width - 0.5)*12;
+          const y = ((e.clientY - r.top)/r.height - 0.5)*9;
+          this.style.transform = `translate(${x}px,${y}px)`;
+        });
+        btn.addEventListener('mouseleave', () => this.style.transform = 'translate(0,0)');
+      });
+    }
+
+    function initKeyboard() {
+      let k = [];
+      const code = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+      window.addEventListener('keydown', e => {
+        k.push(e.key); k = k.slice(-code.length);
+        if (JSON.stringify(k) === JSON.stringify(code)) {
+          k = [];
+          const b = document.createElement('div');
+          b.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;display:grid;place-items:center;font-size:2.4rem;color:#fff6b5;text-shadow:0 0 40px #facc15;font-weight:800';
+          b.textContent = 'IT HERO MODE — THEME CYCLE';
+          document.body.appendChild(b);
+          setTimeout(()=>b.remove(), 1500);
+          // Cycle theme
+          const idx = THEMES.findIndex(t => t.id === currentTheme);
+          applyTheme(THEMES[(idx+1) % THEMES.length].id);
+        }
+        if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+          e.preventDefault();
+          document.getElementById('category-filter').focus();
+        }
+      });
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      loadData();
+
+      // Apply theme (saved or month-based)
+      const savedTheme = localStorage.getItem('av_it_theme');
+      const initialTheme = savedTheme || getThemeForCurrentMonth();
+      applyTheme(initialTheme, false);
+
+      initDynamicBackground();
+      initHeroParticles();
+      createConstellation();
+
+      renderStats();
+      updateHeroText();
+      renderPosts();
+      renderTeam();
+
+      initMagnetic();
+      initKeyboard();
+
+      // Gentle entrance animation for constellation nodes
+      setTimeout(() => {
+        const nodes = document.querySelectorAll('#constellation-svg .node');
+        if (nodes.length) gsap.from(nodes, {scale:0.5, opacity:0, duration:1.0, stagger:0.05, ease:'back.out(1.3)'});
+      }, 900);
+
+      // Random gentle toast on first visit (optional delight)
+      if (!localStorage.getItem('av_it_visited')) {
+        setTimeout(() => {
+          showToast('Pro tip: Click the stats to edit them live');
+          localStorage.setItem('av_it_visited', '1');
+        }, 5200);
+      }
+
+      console.log('%c[AV IT Central] Fully dynamic + themeable version initialized. Content is now easy to update via the floating button.', 'color:#4b5563');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
